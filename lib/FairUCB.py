@@ -1,4 +1,4 @@
-from LinUCB import LinUCBAlgorithm
+from .LinUCB import LinUCBAlgorithm
 from Recommendation import IncentivizedRecommendation
 import random
 import numpy as np

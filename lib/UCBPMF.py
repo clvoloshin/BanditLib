@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats
-from BaseAlg import BaseAlg
+from .BaseAlg import BaseAlg
 
 
 class UCBPMFArticleStruct:
@@ -48,7 +48,7 @@ class UCBPMFUserStruct:
 		self.A = 1.0/(self.sigmaU**2)*np.identity(n = self.dimension)
 		self.b = np.zeros(self.dimension)
 		self.AInv = np.linalg.inv(self.A)
-		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)	
+		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)
 
 		self.count = {}
 
@@ -63,12 +63,12 @@ class UCBPMFUserStruct:
 
 		self.A += 1.0/(self.sigma**2)*np.outer(article.V,article.V)
 		self.b += article.V*click
-		self.AInv = np.linalg.inv(self.A)				
+		self.AInv = np.linalg.inv(self.A)
 
-		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)	
+		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)
 		#Sample U
 		self.U = np.random.multivariate_normal(self.Mu, self.AInv)
-	
+
 	def getProb(self, alpha, article):
 		mean = np.dot(self.U, article.V)
 		var = np.sqrt(np.trace(self.AInv.T.dot(article.A2Inv) + self.AInv.T.dot(np.outer(article.V, article.V)) + np.outer(self.U, self.U).dot(article.A2Inv)))

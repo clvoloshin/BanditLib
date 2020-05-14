@@ -39,9 +39,9 @@ def pca_articles(articles, order):
 	pca = PCA()
 	X_new = pca.fit_transform(X)
 	# X_new = np.asarray(X)
-	print('pca variance in each dim:', pca.explained_variance_ratio_) 
+	print('pca variance in each dim:', pca.explained_variance_ratio_)
 
-	print X_new
+	print(X_new)
 	#default is descending order, where the latend features use least informative dimensions.
 	if order == 'random':
 		np.random.shuffle(X_new.T)
@@ -55,11 +55,11 @@ def pca_articles(articles, order):
 
 
 def generate_algorithms(alg_dict, W, system_params):
-	gen = alg_dict['general'] if alg_dict.has_key('general') and alg_dict['general'] else {}
+	gen = alg_dict['general'] if 'general' in alg_dict and alg_dict['general'] else {}
 	algorithms = {}
 	diffLists = DiffManager()
 	for i in alg_dict['specific']:
-		print str(i)
+		print(str(i))
 		try:
 			tmpDict = globals()['create' + i + 'Dict'](alg_dict['specific'][i] if alg_dict['specific'][i] else {}, gen, W, system_params)
 		except KeyError:
@@ -69,7 +69,7 @@ def generate_algorithms(alg_dict, W, system_params):
 		except KeyError:
 			raise NotImplementedError(i + " not currently implemented")
 		diffLists.add_algorithm(i, algorithms[i].getEstimateSettings())
-	print algorithms
+	print(algorithms)
 	return algorithms, diffLists
 
 if __name__ == '__main__':
@@ -83,10 +83,10 @@ if __name__ == '__main__':
 	cfg = {}
 	with open(args.config, 'r') as ymlfile:
 		cfg = yaml.load(ymlfile)
-	gen = cfg['general'] if cfg.has_key('general') else {}
-	user = cfg['user'] if cfg.has_key('user') else {}
-	article = cfg['article'] if cfg.has_key('article') else {}
-	reco = cfg['reward'] if cfg.has_key('reward') else {}
+	gen = cfg['general'] if 'general' in cfg else {}
+	user = cfg['user'] if 'user' in cfg else {}
+	article = cfg['article'] if 'article' in cfg else {}
+	reco = cfg['reward'] if 'reward' in cfg else {}
 
 	#algName = str(args.alg) if args.alg else gen['alg']
 
@@ -95,35 +95,35 @@ if __name__ == '__main__':
 	if args.contextdim:
 		context_dimension = args.contextdim
 	else:
-		context_dimension = gen['context_dimension'] if gen.has_key('context_dimension') else 20
+		context_dimension = gen['context_dimension'] if 'context_dimension' in gen else 20
 	rewardManagerDict['context_dimension'] = context_dimension
 	if args.hiddendim:
 		latent_dimension = args.hiddendim
 	else:
-		latent_dimension = gen['hidden_dimension'] if gen.has_key('hidden_dimension') else 0
+		latent_dimension = gen['hidden_dimension'] if 'hidden_dimension' in gen else 0
 	rewardManagerDict['latent_dimension'] = latent_dimension
 
-	rewardManagerDict['training_iterations'] = gen['training_iterations'] if gen.has_key('training_iterations') else 0
-	rewardManagerDict['testing_iterations'] = gen['testing_iterations'] if gen.has_key('testing_iterations') else 100
-	rewardManagerDict['plot'] = gen['plot'] if gen.has_key('plot') else True
-	
+	rewardManagerDict['training_iterations'] = gen['training_iterations'] if 'training_iterations' in gen else 0
+	rewardManagerDict['testing_iterations'] = gen['testing_iterations'] if 'testing_iterations' in gen else 100
+	rewardManagerDict['plot'] = gen['plot'] if 'plot' in gen else True
+
 	rewardManagerDict['NoiseScale'] = .01
 
-	
+
 
 	# alpha  = 0.3
 	# lambda_ = 0.1   # Initialize A
 	rewardManagerDict['epsilon'] = 0 # initialize W
 	# eta_ = 0.5
 
-	n_articles = article['number'] if article.has_key('number') else 1000
-	ArticleGroups = article['groups'] if article.has_key('groups') else 5
+	n_articles = article['number'] if 'number' in article else 1000
+	ArticleGroups = article['groups'] if 'groups' in article else 5
 
-	n_users = user['number'] if user.has_key('number') else 10
-	UserGroups = user['groups'] if user.has_key('groups') else 5
-	
-	rewardManagerDict['poolArticleSize'] = gen['pool_article_size'] if gen.has_key('pool_article_size') else 10
-	rewardManagerDict['batchSize'] = gen['batch_size'] if gen.has_key('batch_size') else 1
+	n_users = user['number'] if 'number' in user else 10
+	UserGroups = user['groups'] if 'groups' in user else 5
+
+	rewardManagerDict['poolArticleSize'] = gen['pool_article_size'] if 'pool_article_size' in gen else 10
+	rewardManagerDict['batchSize'] = gen['batch_size'] if 'batch_size' in gen else 1
 
 	# Matrix parameters
 	matrixNoise = 0.01
@@ -133,10 +133,10 @@ if __name__ == '__main__':
 
 	# Parameters for GOBLin
 	rewardManagerDict['Gepsilon'] = 1
-	
+
 	user['default_file'] = os.path.join(sim_files_folder, "users_"+str(n_users)+"context_"+str(context_dimension)+"latent_"+str(latent_dimension)+ "Ugroups" + str(UserGroups)+".json")
-	# Override User type 
-	if gen.has_key('collaborative'):
+	# Override User type
+	if 'collaborative' in gen:
 		if gen['collaborative']:
 			use_coUsers = True
 			reward_type = 'SocialLinear'
@@ -144,11 +144,11 @@ if __name__ == '__main__':
 			use_coUsers = False
 			reward_type = 'Linear'
 	else:
-		use_coUsers = user.has_key('collaborative') and user['collaborative']
-		reward_type = reco['type'] if reco.has_key('type') else 'linear'
+		use_coUsers = 'collaborative' in user and user['collaborative']
+		reward_type = reco['type'] if 'type' in reco else 'linear'
 
 
-	#if user.has_key('collaborative') and user['collaborative']:
+	#if 'collaborative' in user and user['collaborative']:
 	if use_coUsers:
 		UM = CoUserManager(context_dimension+latent_dimension, user, argv={'l2_limit':1, 'sparseLevel': n_users, 'matrixNoise': rewardManagerDict['matrixNoise']})
 	else:
@@ -157,36 +157,36 @@ if __name__ == '__main__':
 
 	rewardManagerDict['W'] = UM.getW()
 	rewardManagerDict['users'] = UM.getUsers()
-	
+
 	articlesFilename = os.path.join(sim_files_folder, "articles_"+str(n_articles)+"context_"+str(context_dimension)+"latent_"+str(latent_dimension)+ "Agroups" + str(ArticleGroups)+".json")
 	AM = ArticleManager(context_dimension+latent_dimension, n_articles=n_articles, ArticleGroups = ArticleGroups,
 			FeatureFunc=featureUniform,  argv={'l2_limit':1})
-	if article.has_key('load') and article['load']:
-		articles = AM.loadArticles(articles['filename']) if articles.has_key('filename') else AM.loadArticles(articlesFilename)
+	if 'load' in article and article['load']:
+		articles = AM.loadArticles(articles['filename']) if 'filename' in articles else AM.loadArticles(articlesFilename)
 	else:
 		articles = AM.simulateArticlePool()
-		if article.has_key('save') and article['save']:
-			AM.saveArticles(articles, articlesFilename, force=False) 
-	rewardManagerDict['k'] = reco['k'] if reco.has_key('k') else 1
-	#reward_type = reco['type'] if reco.has_key('type') else 'linear'
-	
+		if 'save' in article and article['save']:
+			AM.saveArticles(articles, articlesFilename, force=False)
+	rewardManagerDict['k'] = reco['k'] if 'k' in reco else 1
+	#reward_type = reco['type'] if 'type' in reco else 'linear'
+
 	#PCA
 	pca_articles(articles, 'random')
 	rewardManagerDict['articles'] = articles
-	rewardManagerDict['testing_method'] = gen['testing_method'] if gen.has_key('testing_method') else "online"
+	rewardManagerDict['testing_method'] = gen['testing_method'] if 'testing_method' in gen else "online"
 	rewardManagerDict['noise'] = lambda : np.random.normal(scale = rewardManagerDict['NoiseScale'])
 	rewardManagerDict['type'] = "UniformTheta"
 	rewardManagerDict['simulation_signature'] = AM.signature
 
 
-	
+
 	for i in range(len(articles)):
 		articles[i].contextFeatureVector = articles[i].featureVector[:context_dimension]
 
 	# TODO: Add in reward options dictionary
 	simExperiment = RewardManager(arg_dict = rewardManagerDict, reward_type = reward_type)
 
-	print "Starting for ", simExperiment.simulation_signature
+	print("Starting for ", simExperiment.simulation_signature)
 	system_params = {
 		'context_dim': context_dimension,
 		'latent_dim': latent_dimension,

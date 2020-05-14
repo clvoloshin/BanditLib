@@ -1,14 +1,14 @@
-import cPickle
-import numpy as np 
+import _pickle as cPickle
+import numpy as np
 from util_functions import featureUniform, gaussianFeature, fileOverWriteWarning
 from random import sample, randint
 import json
 
-class Article():	
+class Article():
 	def __init__(self, aid, FV=None):
 		self.id = aid
 		self.featureVector = FV
-		
+
 
 class ArticleManager():
 	def __init__(self, dimension, n_articles, ArticleGroups, FeatureFunc, argv ):
@@ -43,7 +43,7 @@ class ArticleManager():
 
 	def simulateArticlePool(self):
 		articles = []
-		
+
 		articles_id = {}
 		mask = self.generateMasks()
 		feature_matrix = np.empty([self.n_articles, self.dimension])
@@ -56,7 +56,7 @@ class ArticleManager():
 				articles.append(Article(key, featureVector/l2_norm ))
 		else:
 			for i in range(self.ArticleGroups):
-				articles_id[i] = range((self.n_articles*i)/self.ArticleGroups, (self.n_articles*(i+1))/self.ArticleGroups)
+				articles_id[i] = range((self.n_articles*i)//self.ArticleGroups, (self.n_articles*(i+1))//self.ArticleGroups)
 
 				for key in articles_id[i]:
 					featureVector = np.multiply(feature_matrix[key], mask[i])
@@ -101,6 +101,6 @@ class ArticleManager():
 		for key in articles_id_5:
 			articles.append(Article(key, np.multiply(featureUniform(self.dimension,{}), mask5)))
 		'''
-	
+
 		return articles
 

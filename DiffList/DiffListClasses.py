@@ -1,4 +1,4 @@
-from BaseDiffList import BaseDiffList
+from .BaseDiffList import BaseDiffList
 
 class CoThetaDiffList(BaseDiffList):
 	def __init__(self, alg_name):

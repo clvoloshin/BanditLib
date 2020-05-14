@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 from util_functions import featureUniform, gaussianFeature, fileOverWriteWarning
 import json
 from random import choice, randint
@@ -47,18 +47,18 @@ class User():
 class UserManager():
 	def __init__(self, dimension, user_dict, argv = None):
 		self.dimension = dimension
-		self.thetaFunc = eval(user_dict['thetaFunc']) if user_dict.has_key('thetaFunc') else featureUniform
-		self.userNum = user_dict['number'] if user_dict.has_key('number') else 10
-		self.UserGroups = user_dict['groups'] if user_dict.has_key('groups') else 5
+		self.thetaFunc = eval(user_dict['thetaFunc']) if 'thetaFunc' in user_dict else featureUniform
+		self.userNum = user_dict['number'] if 'number' in user_dict else 10
+		self.UserGroups = user_dict['groups'] if 'groups' in user_dict else 5
 		self.argv = argv
 		self.signature = "A-"+"+PA"+"+TF-"+self.thetaFunc.__name__
-		if user_dict.has_key('load') and user_dict['load']:
+		if 'load' in user_dict and user_dict['load']:
 			# Load from user file
-			self.users = self.loadUsers(user_dict['filename']) if user_dict.has_key('filename') else self.loadUsers(user_dict['default_file'])
+			self.users = self.loadUsers(user_dict['filename']) if 'filename' in user_dict else self.loadUsers(user_dict['default_file'])
 		else:
 			# Simulate random users
 			self.users = self.simulateThetafromUsers()
-			if user_dict.has_key('save') and user_dict['save']:
+			if 'save' in user_dict and user_dict['save']:
 				self.saveUsers(users, user_dict['default_file'], force = False)
 
 		# How should W be set up for this type of Users
@@ -71,9 +71,9 @@ class UserManager():
 		fileOverWriteWarning(filename, force)
 		with open(filename, 'w') as f:
 			for i in range(len(users)):
-				print users[i].theta
+				print(users[i].theta)
 				f.write(json.dumps((users[i].id, users[i].theta.tolist())) + '\n')
-				
+
 	def loadUsers(self, filename):
 		users = []
 		with open(filename, 'r') as f:
@@ -109,11 +109,11 @@ class UserManager():
 		return users
 
 	def constructZeroMatrix(self):
-		n = len(self.users)	
+		n = len(self.users)
         # Identity Matrix instead, so CoLin equivalent to LinUCB
 		W = np.identity(n = n)
 		W0 = np.identity(n = n)
-		return [W, W0] 
+		return [W, W0]
 
 	def getW(self):
 		return self.W
@@ -123,4 +123,4 @@ class UserManager():
 	def CoTheta(self):
 		for ui in self.users:
 			ui.CoTheta = ui.theta
-			print 'Users', ui.id, 'CoTheta', ui.CoTheta
+			print('Users', ui.id, 'CoTheta', ui.CoTheta)

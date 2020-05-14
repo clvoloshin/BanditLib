@@ -34,7 +34,7 @@ class BaseAlg():
 	def getV(self, articleID):
 		if self.dimension == 0:
 			return np.zeros(self.context_dimension + self.hidden_dimension)
-		else: 
+		else:
 			return np.zeros(self.dimension)
 
 	def getW(self, userID):

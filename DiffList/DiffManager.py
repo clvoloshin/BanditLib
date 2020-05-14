@@ -1,27 +1,27 @@
-from DiffListClasses import *
+from .DiffListClasses import *
 class DiffManager():
 	def __init__(self):
 		self.lists_dict = {}
 
 	def add_algorithm(self, alg_name, pref_dict):
 		if pref_dict['CanEstimateUserPreference']:
-			if self.lists_dict.has_key('Theta'):
+			if 'Theta' in self.lists_dict:
 				self.lists_dict['Theta'].add(alg_name)
 			else:
 				self.lists_dict['Theta'] = ThetaDiffList(alg_name)
 		if pref_dict['CanEstimateCoUserPreference']:
-			if self.lists_dict.has_key('CoTheta'):
-				self.lists_dict['CoTheta'].add(alg_name) 
+			if 'CoTheta' in self.lists_dict:
+				self.lists_dict['CoTheta'].add(alg_name)
 			else:
 				self.lists_dict['CoTheta'] = CoThetaDiffList(alg_name)
 		if pref_dict['CanEstimateW']:
-			if self.lists_dict.has_key('W'):
-				self.lists_dict['W'].add(alg_name) 
+			if 'W' in self.lists_dict:
+				self.lists_dict['W'].add(alg_name)
 			else:
 				self.lists_dict['W'] = WDiffList(alg_name)
 
 		if pref_dict['CanEstimateV']:
-			if self.lists_dict.has_key('V'):
+			if 'V' in self.lists_dict:
 				self.lists_dict['V'].add(alg_name)
 			else:
 				self.lists_dict['V'] = VDiffList(alg_name)

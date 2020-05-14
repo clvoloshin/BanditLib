@@ -2,7 +2,7 @@ from Rewards.LinearReward import LinearReward
 from Rewards.SocialLinearReward import SocialLinearReward
 # from Rewards.FairReward import FairReward
 from Recommendation import Recommendation
-import numpy as np 
+import numpy as np
 import datetime
 import os.path
 import copy
@@ -29,20 +29,20 @@ class RewardManager():
 		# 	self.reward = FairReward(self.k)
 		# else:
 		# 	self.reward = LinearReward(self.k)
-	
+
 	def batchRecord(self, iter_):
-		print "Iteration %d"%iter_, "Pool", len(self.articlePool)," Elapsed time", datetime.datetime.now() - self.startTime
+		print("Iteration %d"%iter_, "Pool", len(self.articlePool)," Elapsed time", datetime.datetime.now() - self.startTime)
 
 	def regulateArticlePool(self):
 		# Randomly generate articles
-		self.articlePool = sample(self.articles, self.poolArticleSize)   
-	
+		self.articlePool = sample(self.articles, self.poolArticleSize)
+
 	def getL2Diff(self, x, y):
 		return np.linalg.norm(x-y) # L2 norm
 
 	def runAlgorithms(self, algorithms, diffLists):
 		self.startTime = datetime.datetime.now()
-		timeRun = self.startTime.strftime('_%m_%d_%H_%M') 
+		timeRun = self.startTime.strftime('_%m_%d_%H_%M')
 		filenameWriteRegret = os.path.join(save_address, 'AccRegret' + timeRun + '.csv')
 		filenameWritePara = os.path.join(save_address, 'ParameterEstimation' + timeRun + '.csv')
 
@@ -59,7 +59,7 @@ class RewardManager():
 		RVDiff = {}
 
 		Var = {}
-		
+
 		# Initialization
 		userSize = len(self.users)
 		for alg_name, alg in algorithms.items():
@@ -67,30 +67,30 @@ class RewardManager():
 			BatchCumlateRegret[alg_name] = []
 			Var[alg_name] = []
 
-		
+
 		with open(filenameWriteRegret, 'w') as f:
 			f.write('Time(Iteration)')
-			f.write(',' + ','.join( [str(alg_name) for alg_name in algorithms.iterkeys()]))
+			f.write(',' + ','.join( [str(alg_name) for alg_name in algorithms.keys()]))
 			f.write('\n')
-		
+
 		with open(filenameWritePara, 'w') as f:
 			f.write('Time(Iteration)')
 			diffLists.initial_write(f)
 			f.write('\n')
-		
+
 		# Training
 		shuffle(self.articles)
 		for iter_ in range(self.training_iterations):
-			article = self.articles[iter_]										
+			article = self.articles[iter_]
 			for u in self.users:
-				noise = self.noise()	
+				noise = self.noise()
 				reward = self.reward.getReward(u, article)
-				reward += noise										
+				reward += noise
 				for alg_name, alg in algorithms.items():
-					alg.updateParameters(article, reward, u.id)	
+					alg.updateParameters(article, reward, u.id)
 
 			if 'syncCoLinUCB' in algorithms:
-				algorithms['syncCoLinUCB'].LateUpdate()	
+				algorithms['syncCoLinUCB'].LateUpdate()
 
 		#Testing
 		for iter_ in range(self.testing_iterations):
@@ -103,7 +103,7 @@ class RewardManager():
 				#get optimal reward for user x at time t
 				#pool_copy = copy.deepcopy(self.articlePool)
 				OptimalReward, OptimalArticle = self.reward.getOptimalReward(u, self.articlePool)
-				# print "Optimal Reward", OptimalReward
+				# print("Optimal Reward", OptimalReward)
 				#OptimalReward = self.reward.getOptimalRecommendationReward(u, self.articlePool, self.k)
 				OptimalReward += noise
 
@@ -125,14 +125,14 @@ class RewardManager():
 						# Assuming that the user will always be selecting one item for each iteration
 						#pickedArticle = recommendation.articles[0]
 						reward, pickedArticle = self.reward.getRecommendationReward(u, recommendation, noise)
-						# print "ActualReward", reward
+						# print("ActualReward", reward)
 					if (self.testing_method=="online"):
 						alg.updateParameters(pickedArticle, reward, u.id)
 						#alg.updateRecommendationParameters(recommendation, rewardList, u.id)
 						if alg_name =='CLUB':
 							n_components= alg.updateGraphClusters(u.id,'False')
 
-					# print "Regret", float(OptimalReward - reward)
+					# print("Regret", float(OptimalReward - reward))
 					regret = OptimalReward - reward
 					AlgRegret[alg_name].append(regret)
 
@@ -144,18 +144,18 @@ class RewardManager():
 					# #update parameter estimation record
 					diffLists.update_parameters(alg_name, self, u, alg, pickedArticle, reward, noise)
 			if 'syncCoLinUCB' in algorithms:
-				algorithms['syncCoLinUCB'].LateUpdate()	
+				algorithms['syncCoLinUCB'].LateUpdate()
 			diffLists.append_to_lists(userSize)
-				
+
 			if iter_%self.batchSize == 0:
 				self.batchRecord(iter_)
 				tim_.append(iter_)
-				for alg_name in algorithms.iterkeys():
+				for alg_name in algorithms.keys():
 					BatchCumlateRegret[alg_name].append(sum(AlgRegret[alg_name]))
 
 				with open(filenameWriteRegret, 'a+') as f:
 					f.write(str(iter_))
-					f.write(',' + ','.join([str(BatchCumlateRegret[alg_name][-1]) for alg_name in algorithms.iterkeys()]))
+					f.write(',' + ','.join([str(BatchCumlateRegret[alg_name][-1]) for alg_name in algorithms.keys()]))
 					f.write('\n')
 				with open(filenameWritePara, 'a+') as f:
 					f.write(str(iter_))
@@ -163,11 +163,11 @@ class RewardManager():
 					f.write('\n')
 
 		if (self.plot==True): # only plot
-			# plot the results	
+			# plot the results
 			f, axa = plt.subplots(1, sharex=True)
-			for alg_name in algorithms.iterkeys():	
+			for alg_name in algorithms.keys():
 				axa.plot(tim_, BatchCumlateRegret[alg_name],label = alg_name)
-				print '%s: %.2f' % (alg_name, BatchCumlateRegret[alg_name][-1])
+				print('%s: %.2f' % (alg_name, BatchCumlateRegret[alg_name][-1]))
 			axa.legend(loc='upper left',prop={'size':9})
 			axa.set_xlabel("Iteration")
 			axa.set_ylabel("Regret")
@@ -178,7 +178,7 @@ class RewardManager():
 			f, axa = plt.subplots(1, sharex=True)
 			time = range(self.testing_iterations)
 			diffLists.plot_diff_lists(axa, time)
-		
+
 			axa.legend(loc='upper right',prop={'size':6})
 			axa.set_xlabel("Iteration")
 			axa.set_ylabel("L2 Diff")
@@ -187,6 +187,6 @@ class RewardManager():
 			plt.show()
 
 		finalRegret = {}
-		for alg_name in algorithms.iterkeys():
+		for alg_name in algorithms.keys():
 			finalRegret[alg_name] = BatchCumlateRegret[alg_name][:-1]
 		return finalRegret

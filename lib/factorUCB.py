@@ -1,6 +1,6 @@
 import numpy as np
 from util_functions import vectorize, matrixize
-from BaseAlg import BaseAlg
+from .BaseAlg import BaseAlg
 
 class FactorUCBArticleStruct:
 	def __init__(self, id, context_dimension, latent_dimension, lambda_, W, init="zero", context_feature=None):
@@ -74,16 +74,16 @@ class FactorUCBUserStruct:
 				self.count[userID][article.id] += 1
 			else:
 				self.count[userID][article.id] = 1
-			X = vectorize(np.outer(article.V, self.W.T[userID])) 
-			self.A += np.outer(X, X)	
+			X = vectorize(np.outer(article.V, self.W.T[userID]))
+			self.A += np.outer(X, X)
 			self.b += click*X
 
 		self.AInv =  np.linalg.inv(self.A)
 
-		self.UserTheta = matrixize(np.dot(self.AInv, self.b), len(articles[0].V)) 
+		self.UserTheta = matrixize(np.dot(self.AInv, self.b), len(articles[0].V))
 		self.CoTheta = np.dot(self.UserTheta, self.W)
-		self.CCA = np.dot(np.dot(self.BigW , self.AInv), np.transpose(self.BigW))				
-	
+		self.CCA = np.dot(np.dot(self.BigW , self.AInv), np.transpose(self.BigW))
+
 	def getA(self):
 		return self.A
 
@@ -96,7 +96,7 @@ class FactorUCBUserStruct:
 		TempFeatureM.T[userID] = article.V
 		TempFeatureV = vectorize(TempFeatureM)
 
-		mean = np.dot(self.CoTheta.T[userID], article.V)	
+		mean = np.dot(self.CoTheta.T[userID], article.V)
 		var = np.sqrt(np.dot(np.dot(TempFeatureV, self.CCA), TempFeatureV))
 		var2 = np.sqrt(np.dot(np.dot(self.CoTheta.T[userID][self.context_dimension:], article.A2Inv),  self.CoTheta.T[userID][self.context_dimension:]))
 		pta = mean + alpha * var + alpha2*var2
@@ -106,7 +106,7 @@ class FactorUCBUserStruct:
 		TempFeatureM.T[userID] = article.V
 		TempFeatureV = vectorize(TempFeatureM)
 
-		mean = np.dot(self.CoTheta.T[userID], article.V)	
+		mean = np.dot(self.CoTheta.T[userID], article.V)
 		var = np.sqrt(np.dot(np.dot(TempFeatureV, self.CCA), TempFeatureV))
 		var2 = np.sqrt(np.dot(np.dot(self.CoTheta.T[userID][self.context_dimension:], article.A2Inv),  self.CoTheta.T[userID][self.context_dimension:]))
 		pta = mean + alpha * var + alpha2*var2
@@ -122,11 +122,11 @@ class FactorUCBAlgorithm(BaseAlg):
 	def __init__(self, arg_dict, init='random', window_size = 1, max_window_size = 10):  # n is number of users
 		BaseAlg.__init__(self, arg_dict)
 		self.d = self.context_dimension + self.latent_dimension
-		
+
 		self.USERS = FactorUCBUserStruct(self.context_dimension, self.latent_dimension, self.lambda_ , self.n, self.W, init)
 		self.articles = []
 		for i in range(self.itemNum):
-			self.articles.append(FactorUCBArticleStruct(i, self.context_dimension, self.latent_dimension, self.lambda_, self.W, init)) 
+			self.articles.append(FactorUCBArticleStruct(i, self.context_dimension, self.latent_dimension, self.lambda_, self.W, init))
 
 		if window_size == -1:
 			self.increase_window = True
@@ -149,7 +149,7 @@ class FactorUCBAlgorithm(BaseAlg):
 				x_pta = self.USERS.getProb(self.alpha, self.alpha2, self.articles[x.id], userID)
 
 				# pick article with highest Prob
-				# print x_pta 
+				# print x_pta
 				if maxPTA < x_pta and x not in articles:
 					articlePicked = x
 					maxPTA = x_pta
@@ -183,7 +183,7 @@ class FactorUCBAlgorithm(BaseAlg):
 
 			# 	#self.articles[articlePicked.id].A2 -= (article.getCount(userID))*np.outer(user.U[self.context_dimension:], user.U[self.context_dimension:])
 			# 	self.USERS.updateParameters(self.articles[articlePicked.id], click, userID)
-			
+
 			# for articlePicked, click, userID in self.window:
 			# 	#self.articles[articlePicked.id].A2 += (article.getCount(userID)-1)*np.outer(user.U[self.context_dimension:], user.U[self.context_dimension:])
 

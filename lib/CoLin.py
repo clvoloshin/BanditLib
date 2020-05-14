@@ -5,7 +5,7 @@ import time
 import datetime
 from util_functions import vectorize, matrixize
 from Recommendation import Recommendation
-from BaseAlg import BaseAlg
+from .BaseAlg import BaseAlg
 import warnings
 
 class CoLinUCBUserSharedStruct(object):
@@ -13,24 +13,24 @@ class CoLinUCBUserSharedStruct(object):
 		self.currentW = np.identity(n = userNum)
 
 		self.W = W
-		print "W: ", self.W
+		print("W: ", self.W)
 		self.userNum = userNum
 		self.A = lambda_*np.identity(n = featureDimension*userNum)
 		self.b = np.zeros(featureDimension*userNum)
 		self.AInv =  np.linalg.inv(self.A)
-		
+
 		self.UserTheta = np.zeros(shape = (featureDimension, userNum))
 		self.CoTheta = np.zeros(shape = (featureDimension, userNum))
 
 		self.BigW = np.kron(np.transpose(W), np.identity(n=featureDimension))
-		print "Big W: ", self.BigW
+		print("Big W: ", self.BigW)
 		self.CCA = np.dot(np.dot(self.BigW , self.AInv), np.transpose(self.BigW))
 		self.alpha_t = 0.0
 		self.sigma = 1.e-200   #Used in the high probability bound, i.e, with probability at least (1 - sigma) the confidence bound. So sigma should be very small
 		self.lambda_ = lambda_
 	def updateParameters(self, articlePicked, click,  userID, update='Inv'):
 		X = vectorize(np.outer(articlePicked.contextFeatureVector, self.W.T[userID]))
-		#print "X: " + str(X)
+		#print("X: " + str(X))
 		change = np.outer(X, X)
 		self.A += change
 		self.b += click*X
@@ -38,17 +38,17 @@ class CoLinUCBUserSharedStruct(object):
 			self.AInv =  np.linalg.inv(self.A)
 		else:
 			self.AInv = self.AInv - float(np.dot(self.AInv, np.dot(outer, self.AInv)))/(1.0+np.dot(np.transpose(X), np.dot(self.AInv, X)  ))
-		self.UserTheta = matrixize(np.dot(self.AInv, self.b), len(articlePicked.contextFeatureVector)) 
+		self.UserTheta = matrixize(np.dot(self.AInv, self.b), len(articlePicked.contextFeatureVector))
 		self.CoTheta = np.dot(self.UserTheta, self.W)
 		self.CCA = np.dot(np.dot(self.BigW , self.AInv), np.transpose(self.BigW))
-	
+
 	def getProb(self, alpha, article, userID):
 		warnings.filterwarnings('error')
 		TempFeatureM = np.zeros(shape =(len(article.contextFeatureVector), self.userNum))
 		TempFeatureM.T[userID] = article.contextFeatureVector
 		TempFeatureV = vectorize(TempFeatureM)
-		
-		mean = np.dot(self.CoTheta.T[userID], article.contextFeatureVector)	
+
+		mean = np.dot(self.CoTheta.T[userID], article.contextFeatureVector)
 		var = np.sqrt(np.dot(np.dot(TempFeatureV, self.CCA), TempFeatureV))
 
 		#self.alpha_t = 0.01*np.sqrt(np.log(np.linalg.det(self.A)/float(self.sigma * self.lambda_) )) + np.sqrt(self.lambda_)
@@ -58,14 +58,14 @@ class CoLinUCBUserSharedStruct(object):
 			self.alpha_t = 0.0
 		#pta = mean + alpha * var    # use emprically tuned alpha
 		pta = mean + self.alpha_t *var   # use the theoretically computed alpha_t
-		
+
 		return pta
 
 	def getUserCoTheta(self, userID):
 		return self.CoTheta.T[userID]
 
 	def getCCA(self):
-		return self.CCA	
+		return self.CCA
 	def calculateAlphaT(self):
 		warnings.filterwarnings('error')
 		try:
@@ -74,7 +74,7 @@ class CoLinUCBUserSharedStruct(object):
 			self.alpha_t = 0.0
 		return self.alpha_t
 
-#---------------CoLinUCB(fixed user order) algorithms: Asynisized version and Synchorized version		
+#---------------CoLinUCB(fixed user order) algorithms: Asynisized version and Synchorized version
 class CoLinUCBAlgorithm(BaseAlg):
 	def __init__(self, arg_dict, update='inv'):  # n is number of users
 		BaseAlg.__init__(self, arg_dict)
@@ -129,7 +129,7 @@ class CoLinUCBAlgorithm(BaseAlg):
 
 	def updateParameters(self, articlePicked, click, userID, update='Inv'):
 		self.USERS.updateParameters(articlePicked, click, userID, update)
-		
+
 	def getLearntParameters(self, userID):
 		return self.USERS.UserTheta.T[userID]
 
@@ -147,4 +147,4 @@ class CoLinUCBAlgorithm(BaseAlg):
 
 
 
-	
+

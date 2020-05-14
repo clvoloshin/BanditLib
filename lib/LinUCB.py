@@ -1,7 +1,7 @@
 import numpy as np
 from util_functions import vectorize
 from Recommendation import Recommendation
-from BaseAlg import BaseAlg
+from .BaseAlg import BaseAlg
 
 class LinUCBUserStruct:
 	def __init__(self, featureDimension, lambda_, init="zero"):
@@ -24,7 +24,7 @@ class LinUCBUserStruct:
 		self.time += 1
 	def getTheta(self):
 		return self.UserTheta
-	
+
 	def getA(self):
 		return self.A
 
@@ -47,7 +47,7 @@ class Uniform_LinUCBAlgorithm(object):
 		self.USER = LinUCBUserStruct(dimension, lambda_, init)
 		self.estimates = {}
 		self.estimates['CanEstimateUserPreference'] = False
-		self.estimates['CanEstimateCoUserPreference'] = True 
+		self.estimates['CanEstimateCoUserPreference'] = True
 		self.estimates['CanEstimateW'] = False
 		self.estimates['CanEstimateV'] = False
 
@@ -77,7 +77,7 @@ class LinUCBAlgorithm(BaseAlg):
 		self.users = []
 		#algorithm have n users, each user has a user structure
 		for i in range(arg_dict['n_users']):
-			self.users.append(LinUCBUserStruct(arg_dict['dimension'], arg_dict['lambda_'] , init)) 
+			self.users.append(LinUCBUserStruct(arg_dict['dimension'], arg_dict['lambda_'] , init))
 
 
 	def decide_old(self, pool_articles, userID, k = 1):
@@ -122,7 +122,7 @@ class LinUCBAlgorithm(BaseAlg):
 
 	def updateParameters(self, articlePicked, click, userID):
 		self.users[userID].updateParameters(articlePicked.contextFeatureVector[:self.dimension], click)
-	
+
 
 	##### SHOULD THIS BE CALLED GET COTHETA #####
 	def getCoTheta(self, userID):
@@ -144,7 +144,7 @@ class LinUCB_SelectUserAlgorithm(LinUCBAlgorithm):
 		maxPTA = float('-inf')
 		articlePicked = None
 		userPicked = None
-		
+
 		for x in pool_articles:
 			for user in AllUsers:
 				x_pta = self.users[user.id].getProb(self.alpha, x.contextFeatureVector[:self.dimension])
@@ -160,7 +160,7 @@ class Hybrid_LinUCB_singleUserStruct(LinUCBUserStruct):
 	def __init__(self, userFeature, lambda_, userID):
 		LinUCBUserStruct.__init__(self, len(userFeature), lambda_)
 		self.d = len(userFeature)
-		
+
 		self.B = np.zeros([self.d, self.d**2])
 		self.userFeature = userFeature
 	def updateParameters(self, articlePicked_FeatureVector, click):
@@ -225,7 +225,7 @@ class Hybrid_LinUCBAlgorithm(object):
 		self.USER = Hybrid_LinUCBUserStruct(dimension, lambda_, userFeatureList)
 
 		self.CanEstimateUserPreference = False
-		self.CanEstimateCoUserPreference = False 
+		self.CanEstimateCoUserPreference = False
 		self.CanEstimateW = False
 		self.CanEstimateV = False
 	def decide(self, pool_articles, userID):

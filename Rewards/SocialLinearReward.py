@@ -1,4 +1,4 @@
-from Reward import Reward
+from .Reward import Reward
 import numpy as np
 
 class SocialLinearReward(Reward):
@@ -29,15 +29,15 @@ class SocialLinearReward(Reward):
 		for i in self.users:
 			for j in self.users:
 				if G[i.id][j.id] > 0:
-					G[i.id][j.id] = 1	
+					G[i.id][j.id] = 1
 
 		L = csgraph.laplacian(G, normed = False)
-		print L
+		print(L)
 		I = np.identity(n = G.shape[0])
 		GW = I + Gepsilon*L  # W is a double stochastic matrix
-		print 'GW', GW
+		print('GW', GW)
 		return GW.T
-	
+
 	def getGW(self):
 		return self.GW
 

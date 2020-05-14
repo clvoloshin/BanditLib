@@ -1,5 +1,5 @@
 import numpy as np
-from BaseAlg import BaseAlg
+from .BaseAlg import BaseAlg
 
 
 class HLinUCBArticleStruct:
@@ -69,12 +69,12 @@ class HLinUCBUserStruct:
 
 		self.A += np.outer(article.V,article.V)
 		self.b += article.V*click
-		self.AInv = np.linalg.inv(self.A)				
+		self.AInv = np.linalg.inv(self.A)
 
-		self.U = np.dot(self.AInv, self.b)		
+		self.U = np.dot(self.AInv, self.b)
 	def getTheta(self):
 		return self.U
-	
+
 	def getA(self):
 		return self.A
 
@@ -104,14 +104,14 @@ class HLinUCBAlgorithm(BaseAlg):
 	def __init__(self, arg_dict, init="zero", window_size = 1, max_window_size = 50):  # n is number of users
 		BaseAlg.__init__(self, arg_dict)
 		self.d = self.context_dimension + self.latent_dimension
-		
+
 		self.users = []
 		#algorithm have n users, each user has a user structure
 		for i in range(self.n_users):
-			self.users.append(HLinUCBUserStruct(i, self.context_dimension, self.latent_dimension, self.lambda_ , init)) 
+			self.users.append(HLinUCBUserStruct(i, self.context_dimension, self.latent_dimension, self.lambda_ , init))
 		self.articles = []
 		for i in range(self.n_articles):
-			self.articles.append(HLinUCBArticleStruct(i, self.context_dimension, self.latent_dimension, self.lambda_ , init)) 
+			self.articles.append(HLinUCBArticleStruct(i, self.context_dimension, self.latent_dimension, self.lambda_ , init))
 
 		if window_size == -1:
 			self.increase_window = True
@@ -133,7 +133,7 @@ class HLinUCBAlgorithm(BaseAlg):
 				x_pta = self.users[userID].getProb(self.alpha, self.alpha2, self.articles[x.id])
 
 				# pick article with highest Prob
-				# print x_pta 
+				# print x_pta
 				if maxPTA < x_pta and x not in articles:
 					articlePicked = x
 					maxPTA = x_pta
@@ -160,7 +160,7 @@ class HLinUCBAlgorithm(BaseAlg):
 
 				#self.articles[articlePicked.id].A2 -= (article.getCount(userID))*np.outer(user.U[self.context_dimension:], user.U[self.context_dimension:])
 				self.users[userID].updateParameters(self.articles[articlePicked.id], click)
-			
+
 			for articlePicked, click, userID in self.window:
 				user = self.users[userID]
 				#self.articles[articlePicked.id].A2 += (article.getCount(userID)-1)*np.outer(user.U[self.context_dimension:], user.U[self.context_dimension:])

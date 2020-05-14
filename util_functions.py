@@ -1,9 +1,9 @@
 from collections import Counter
 from math import log
-import numpy as np 
+import numpy as np
 import copy
 from random import *
-from custom_errors import FileExists 
+from custom_errors import FileExists
 
 # specific : dictionary of arguments specific to the algorithm and supersedes all other parameter settings
 # general : dictionary of arguments shared between all algorithms, supersedes everything except specific parameters
@@ -29,7 +29,7 @@ def createSpecificAlgDict(specific, general, W, system_params, base_dict):
 	tmp = update_dict(specific, general)
 	tmp2 = update_dict(tmp, base_dict)
 	final_dict = update_dict(tmp2, starter)
-	print final_dict
+	print(final_dict)
 	return final_dict
 
 def createLinUCBDict(specific, general, W, system_params):
@@ -159,7 +159,7 @@ def featureUniform(dimension, argv = None):
 	vector = np.array([random() for _ in range(dimension)])
 
 	l2_norm = np.linalg.norm(vector, ord =2)
-	
+
 	vector = vector/l2_norm
 	return vector
 
@@ -171,12 +171,12 @@ def checkFileExists(filename):
 		with open(filename, 'r'):
 			return 1
 	except IOError:
-		return 0 
+		return 0
 
 def fileOverWriteWarning(filename, force):
 	if checkFileExists(filename):
 		if force == True:
-			print "Warning : fileOverWriteWarning %s"%(filename)
+			print("Warning : fileOverWriteWarning %s"%(filename))
 		else:
 			raise FileExists(filename)
 

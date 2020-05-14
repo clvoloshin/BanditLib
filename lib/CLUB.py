@@ -1,9 +1,9 @@
 import numpy as np
-from LinUCB import *
+from .LinUCB import *
 import math
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse import csr_matrix
-from BaseAlg import BaseAlg
+from .BaseAlg import BaseAlg
 
 class CLUBUserStruct(LinUCBUserStruct):
 	def __init__(self,featureDimension,  lambda_, userID):
@@ -13,7 +13,7 @@ class CLUBUserStruct(LinUCBUserStruct):
 		self.Cb = self.b
 		self.CAInv = np.linalg.inv(self.CA)
 		self.CTheta = np.dot(self.CAInv, self.Cb)
-		self.I = lambda_*np.identity(n = featureDimension)	
+		self.I = lambda_*np.identity(n = featureDimension)
 		self.counter = 0
 		self.CBPrime = 0
 		self.d = featureDimension
@@ -53,7 +53,7 @@ class CLUBAlgorithm(BaseAlg):
 		self.users = []
 		#algorithm have n users, each user has a user structure
 		for i in range(self.n):
-			self.users.append(CLUBUserStruct(self.dimension,self.lambda_, i)) 
+			self.users.append(CLUBUserStruct(self.dimension,self.lambda_, i))
 		if (self.cluster_init=="Erdos-Renyi"):
 			p = 3*math.log(self.n)/self.n
 			self.Graph = np.random.choice([0, 1], size=(self.n,self.n), p=[1-p, p])
@@ -61,12 +61,12 @@ class CLUBAlgorithm(BaseAlg):
 			g = csr_matrix(self.Graph)
 			N_components, components = connected_components(g)
 		else:
-			self.Graph = np.ones([self.n,self.n]) 
+			self.Graph = np.ones([self.n,self.n])
 			self.clusters = []
 			g = csr_matrix(self.Graph)
 			N_components, components = connected_components(g)
 
-			
+
 	def decide(self,pool_articles,userID, k = 1):
 		self.users[userID].updateParametersofClusters(self.clusters,userID,self.Graph, self.users)
 		articles = []

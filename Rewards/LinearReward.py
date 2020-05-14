@@ -1,4 +1,4 @@
-from Reward import Reward
+from .Reward import Reward
 import numpy as np
 
 class LinearReward(Reward):

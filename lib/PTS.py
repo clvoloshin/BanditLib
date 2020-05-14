@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats
-from BaseAlg import BaseAlg
+from .BaseAlg import BaseAlg
 
 class PTSArticleStruct:
 	def __init__(self, id, dimension, sigma, sigmaV, init="zero"):
@@ -46,7 +46,7 @@ class PTSUserStruct:
 		self.A = 1.0/(self.sigmaU**2)*np.identity(n = self.dimension)
 		self.b = np.zeros(self.dimension)
 		self.AInv = np.linalg.inv(self.A)
-		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)	
+		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)
 
 		self.count = {}
 
@@ -61,9 +61,9 @@ class PTSUserStruct:
 
 		self.A += 1.0/(self.sigma**2)*np.outer(article.V,article.V)
 		self.b += article.V*click
-		self.AInv = np.linalg.inv(self.A)				
+		self.AInv = np.linalg.inv(self.A)
 
-		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)	
+		self.Mu = 1.0/(self.sigma**2)*np.dot(self.AInv, self.b)
 		#Sample U
 		self.U = np.random.multivariate_normal(self.Mu, self.AInv)
 

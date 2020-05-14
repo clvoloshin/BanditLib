@@ -6,7 +6,7 @@ import datetime
 
 from util_functions import vectorize, matrixize
 #from CoLin import CoLinUCBAlgorithm, CoLinUCB_SelectUserAlgorithm
-from CoLin import CoLinUCBAlgorithm
+from .CoLin import CoLinUCBAlgorithm
 
 
 
@@ -20,7 +20,7 @@ class GOBLinSharedStruct:
 		self.AInv = np.linalg.inv(self.A)
 
 		self.theta = np.dot(self.AInv , self.b)
-		print np.kron(W, np.identity(n=featureDimension))
+		print(np.kron(W, np.identity(n=featureDimension)))
 		self.STBigWInv = sqrtm( np.linalg.inv(np.kron(W, np.identity(n=featureDimension))) )
 		self.STBigW = sqrtm(np.kron(W, np.identity(n=featureDimension)))
 	def updateParameters(self, articlePicked, click, userID, update):
@@ -37,19 +37,19 @@ class GOBLinSharedStruct:
 
 		self.theta = np.dot(self.AInv, self.b)
 	def getProb(self,alpha , article, userID):
-		
+
 		featureVectorM = np.zeros(shape =(len(article.contextFeatureVector), self.userNum))
 		featureVectorM.T[userID] = article.contextFeatureVector
 		featureVectorV = vectorize(featureVectorM)
 
 		CoFeaV = np.dot(self.STBigWInv, featureVectorV)
-		
-		mean = np.dot(np.transpose(self.theta), CoFeaV)		
+
+		mean = np.dot(np.transpose(self.theta), CoFeaV)
 		a = np.dot(CoFeaV, self.AInv)
 		var = np.sqrt( np.dot( np.dot(CoFeaV, self.AInv) , CoFeaV))
-		
+
 		pta = mean + alpha * var
-		
+
 		return pta
 # inherite from CoLinUCBAlgorithm
 class GOBLinAlgorithm(CoLinUCBAlgorithm):
@@ -58,7 +58,7 @@ class GOBLinAlgorithm(CoLinUCBAlgorithm):
 		self.USERS = GOBLinSharedStruct(self.dimension, self.lambda_, self.n_users, self.W)
 		#self.estimates['CanEstimateCoUserPreference'] = False
 	def getLearntParameters(self, userID):
-		thetaMatrix =  matrixize(self.USERS.theta, self.dimension) 
+		thetaMatrix =  matrixize(self.USERS.theta, self.dimension)
 		return thetaMatrix.T[userID]
 
 	def decide(self, pool_articles, userID, k = 1):
@@ -91,5 +91,5 @@ class GOBLinAlgorithm(CoLinUCBAlgorithm):
 # 		CoLinUCB_SelectUserAlgorithm.__init__(self, dimension, alpha, lambda_, n, W)
 # 		self.USERS = GOBLinSharedStruct(dimension, lambda_, n, W)
 # 	def getLearntParameters(self, userID):
-# 		thetaMatrix =  matrixize(self.USERS.theta, self.dimension) 
+# 		thetaMatrix =  matrixize(self.USERS.theta, self.dimension)
 # 		return thetaMatrix.T[userID]
